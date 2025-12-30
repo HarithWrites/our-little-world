@@ -160,7 +160,7 @@ select{
 /* =====================================================
    CONFIG
 ===================================================== */
-const API_URL = "https://script.google.com/macros/s/AKfycbyWDLZ0lSz1CvUmyNhXJqTdsFx95O7IYjMI-PkTUlx9e1z6YzgBlQL8HWnNNf4IB0bs/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxd6J1dUe78TfMWJ5wFdNNhazqZ6PsDoSjeeU4rTa71SmgExvsyNYUGr5PSkQAQxRSI/exec";
 
 /* =====================================================
    STATE
@@ -275,8 +275,8 @@ function createCouple(){
       pinInput.value = newPin.value;
       login();
     } else {
-      alert(res.msg);
-    }
+  alert(res.msg || "Unable to create couple space");
+}
   });
 }
 
