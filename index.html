@@ -120,10 +120,29 @@ const ui = {
     app.style.display = "block";
   },
   renderChat(messages){
-    chatBox.innerHTML = messages.map(
-      m => `<div class="chat-msg"><b>${m[2]}:</b> ${m[3]}</div>`
-    ).join("");
-  }
+  if (!Array.isArray(messages)) return;
+
+  chatBox.innerHTML = messages.map(m => {
+    const sender = m[2];
+    const msg    = m[3];
+    const time   = formatTime(m[1]);
+
+    const mine = sender === "Me";
+
+    return `
+      <div class="chat-row ${mine ? 'me' : 'partner'}">
+        <div class="bubble">
+          <div class="text">${msg}</div>
+          <div class="time">${time}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // 🔥 AUTO-SCROLL
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 };
 
 /* =====================================================
@@ -186,6 +205,14 @@ function loadChat(){
     type: "Chat",
     code: state.coupleCode
   }).then(ui.renderChat);
+}
+
+function formatTime(value){
+  const d = new Date(value);
+  return d.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
 
 /* =====================================================
