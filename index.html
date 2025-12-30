@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our Little World 💖</title>
+
+<style>
+body{margin:0;font-family:sans-serif;background:#fff0f6}
+.card{background:#fff;margin:12px;padding:14px;border-radius:14px}
+button{background:#ff5fa2;color:#fff;border:none;padding:10px;border-radius:10px;width:100%}
+input,textarea{width:100%;padding:8px;margin:5px 0;border-radius:8px;border:1px solid #ddd}
+.gift{background:linear-gradient(135deg,#ff5fa2,#ffc371)}
+</style>
+</head>
+
+<body>
+
+<div class="card" id="loginCard">
+  <h3>💑 Login</h3>
+  <input id="codeInput" placeholder="Couple Code">
+  <input id="pinInput" type="password" placeholder="PIN">
+  <button onclick="login()">Enter</button>
+  <p style="text-align:center">
+    <a href="#" onclick="ui.showCreate()">Create new couple 💖</a>
+  </p>
+</div>
+
+<div class="card" id="createCard" style="display:none">
+  <h3>✨ Create Couple Space</h3>
+  <input id="newCode" placeholder="Couple Code">
+  <input id="newPin" placeholder="PIN">
+  <input id="names" placeholder="Names (Ram ❤️ Sita)">
+  <button onclick="createCouple()">Create & Enter</button>
+  <p style="text-align:center">
+    <a href="#" onclick="ui.showLogin()">Back to login</a>
+  </p>
+</div>
+
+<div id="app" style="display:none">
+
+<div class="card">
+  <h3>💬 Chat</h3>
+  <div id="chatBox"></div>
+  <input id="msgInput" placeholder="Say something sweet 💕">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<div class="card">
+  <h3>💌 Love Note</h3>
+  <textarea id="noteInput"></textarea>
+  <button onclick="saveNote()">Save</button>
+</div>
+
+<div class="card">
+  <h3>📸 Gallery</h3>
+  <input id="imgInput" placeholder="Image URL">
+  <input id="capInput" placeholder="Caption">
+  <button onclick="addGallery()">Add</button>
+  <div id="galleryBox"></div>
+</div>
+
+<div class="card">
+  <h3>✅ Checklist</h3>
+  <div id="checklistBox"></div>
+</div>
+
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyo0wMbvGdHu9Mr_3nIVQwu76L3NFhD-wPU9LNkuTVXzrTgAw4GsftsnvDqOy2c8hb6/exec";
+const CHAT_REFRESH = 3000;
+
+const state = { session:null, chatTimer:null };
+
+const api = {
+  post:d=>fetch(API_URL,{method:"POST",body:JSON.stringify(d)}).then(r=>r.json()),
+  get:t=>fetch(`${API_URL}?type=${t}&code=${state.session.code}`).then(r=>r.json())
+};
+
+const auth = {
+  login:(c,p)=>api.post({action:"login",code:c,pin:p}).then(r=>{
+    if(r.ok) state.session={code:c,names:r.names}; return r;
+  }),
+  create:(c,p,n)=>api.post({action:"create",code:c,pin:p,names:n}),
+  logout:()=>{state.session=null;clearInterval(state.chatTimer);ui.showLogin();}
+};
+
+const chat = {
+  send:m=>api.post({action:"chat",code:state.session.code,sender:"Me",msg:m}),
+  fetch:()=>api.get("Chat")
+};
+
+const notes = { add:n=>api.post({action:"note",code:state.session.code,note:n}) };
+
+const gallery = {
+  add:(u,c)=>api.post({action:"gallery",code:state.session.code,url:u,caption:c}),
+  fetch:()=>api.get("Gallery")
+};
+
+const checklist = {
+  toggle:(i,d)=>api.post({action:"check",code:state.session.code,id:i,done:d}),
+  fetch:()=>api.get("Checklist")
+};
+
+const ui = {
+  showLogin:()=>{loginCard.style.display="block";createCard.style.display="none";app.style.display="none"},
+  showCreate:()=>{loginCard.style.display="none";createCard.style.display="block"},
+  showApp:()=>{loginCard.style.display="none";createCard.style.display="none";app.style.display="block"},
+  renderChat:d=>chatBox.innerHTML=d.map(m=>`<p><b>${m[2]}:</b> ${m[3]}</p>`).join(""),
+  renderGallery:d=>galleryBox.innerHTML=d.map(g=>`<img src="${g[2]}" style="width:100%;border-radius:10px"><p>${g[3]}</p>`).join(""),
+  renderChecklist:d=>checklistBox.innerHTML=d.map(i=>`
+    <div class="${i[4]?'gift':''}">
+      <input type="checkbox" ${i[3]?'checked':''}
+        onchange="toggleChecklist(${i[1]},this.checked)">
+      ${i[2]}
+    </div>`).join("")
+};
+
+function login(){
+  auth.login(codeInput.value,pinInput.value).then(r=>{
+    if(r.ok){ui.showApp();initApp();} else alert("Wrong details 💔");
+  });
+}
+function createCouple(){
+  auth.create(newCode.value,newPin.value,names.value).then(r=>{
+    if(r.ok){codeInput.value=newCode.value;pinInput.value=newPin.value;login();}
+    else alert(r.msg);
+  });
+}
+function sendMessage(){ if(msgInput.value) chat.send(msgInput.value).then(()=>msgInput.value=""); }
+function saveNote(){ if(noteInput.value) notes.add(noteInput.value).then(()=>noteInput.value=""); }
+function addGallery(){ gallery.add(imgInput.value,capInput.value).then(loadGallery); }
+function toggleChecklist(id,done){ checklist.toggle(id,done); }
+
+function loadChat(){ chat.fetch().then(ui.renderChat); }
+function loadGallery(){ gallery.fetch().then(ui.renderGallery); }
+function loadChecklist(){ checklist.fetch().then(ui.renderChecklist); }
+
+function initApp(){
+  loadChat(); loadGallery(); loadChecklist();
+  state.chatTimer=setInterval(loadChat,CHAT_REFRESH);
+}
+ui.showLogin();
+</script>
+
+</body>
+</html>
+<!-- Blogger frontend file -->
