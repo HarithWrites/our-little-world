@@ -1,22 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Our Little World 💖</title>
 
 <style>
-body{margin:0;font-family:sans-serif;background:#fff0f6}
-.card{background:#fff;margin:12px;padding:14px;border-radius:14px}
-button{background:#ff5fa2;color:#fff;border:none;padding:10px;border-radius:10px;width:100%}
-input,textarea{width:100%;padding:8px;margin:5px 0;border-radius:8px;border:1px solid #ddd}
-.gift{background:linear-gradient(135deg,#ff5fa2,#ffc371)}
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#fff0f6;
+}
+.card{
+  background:#fff;
+  margin:14px;
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+h3{margin-top:0}
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#ff5fa2;
+  color:#fff;
+  font-weight:bold;
+}
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin:6px 0;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+.chat-msg{
+  margin:6px 0;
+}
+.gift{
+  background:linear-gradient(135deg,#ff5fa2,#ffc371);
+  padding:6px;
+  border-radius:8px;
+}
+a{color:#ff5fa2;text-decoration:none}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div class="card" id="loginCard">
-  <h3>💑 Login</h3>
+  <h3>💑 Couple Login</h3>
   <input id="codeInput" placeholder="Couple Code">
   <input id="pinInput" type="password" placeholder="PIN">
   <button onclick="login()">Enter</button>
@@ -25,140 +60,284 @@ input,textarea{width:100%;padding:8px;margin:5px 0;border-radius:8px;border:1px 
   </p>
 </div>
 
+<!-- CREATE -->
 <div class="card" id="createCard" style="display:none">
-  <h3>✨ Create Couple Space</h3>
-  <input id="newCode" placeholder="Couple Code">
-  <input id="newPin" placeholder="PIN">
-  <input id="names" placeholder="Names (Ram ❤️ Sita)">
+  <h3>✨ Create Your Space</h3>
+  <input id="newCode" placeholder="Choose Couple Code">
+  <input id="newPin" placeholder="Choose PIN">
+  <input id="names" placeholder="Names (Alex ❤️ Sam)">
   <button onclick="createCouple()">Create & Enter</button>
   <p style="text-align:center">
     <a href="#" onclick="ui.showLogin()">Back to login</a>
   </p>
 </div>
 
+<!-- APP -->
 <div id="app" style="display:none">
 
-<div class="card">
-  <h3>💬 Chat</h3>
-  <div id="chatBox"></div>
-  <input id="msgInput" placeholder="Say something sweet 💕">
-  <button onclick="sendMessage()">Send</button>
-</div>
+  <div class="card">
+    <h3>💬 Chat</h3>
+    <div id="chatBox"></div>
+    <input id="msgInput" placeholder="Say something sweet 💕">
+    <button onclick="sendMessage()">Send</button>
+  </div>
 
-<div class="card">
-  <h3>💌 Love Note</h3>
-  <textarea id="noteInput"></textarea>
-  <button onclick="saveNote()">Save</button>
-</div>
+  <div class="card">
+    <h3>💌 Love Note</h3>
+    <textarea id="noteInput" placeholder="One line from your heart"></textarea>
+    <button onclick="saveNote()">Save</button>
+  </div>
 
-<div class="card">
-  <h3>📸 Gallery</h3>
-  <input id="imgInput" placeholder="Image URL">
-  <input id="capInput" placeholder="Caption">
-  <button onclick="addGallery()">Add</button>
-  <div id="galleryBox"></div>
-</div>
+  <div class="card">
+    <h3>📸 Memory Gallery</h3>
+    <input id="imgInput" placeholder="Image URL">
+    <input id="capInput" placeholder="Caption">
+    <button onclick="addGallery()">Add Memory</button>
+    <div id="galleryBox"></div>
+  </div>
 
-<div class="card">
-  <h3>✅ Checklist</h3>
-  <div id="checklistBox"></div>
-</div>
+  <div class="card">
+    <h3>✅ Checklist</h3>
+    <div id="checklistBox"></div>
+  </div>
 
 </div>
 
 <script>
+/* =====================================================
+   CONFIG
+===================================================== */
 const API_URL = "https://script.google.com/macros/s/AKfycbxWpYFN-OkQTlWoJsKkyIWvPJajoqKegkEb37ZA3HMoYRIt-7q5xrgpRSJjWOxGlQVZ/exec";
-const CHAT_REFRESH = 3000;
+const CHAT_REFRESH_MS = 3000;
 
-const state = { session:null, chatTimer:null };
+/* =====================================================
+   STATE
+===================================================== */
+const state = {
+  session: null,
+  chatTimer: null
+};
 
-/* ===== API CORE (CORS SAFE) ===== */
+/* =====================================================
+   API CORE (🔥 CORS SAFE 🔥)
+   ❗ NEVER use fetch() directly anywhere else
+===================================================== */
 const api = {
-  post(data) {
+  post(data){
     return fetch(API_URL, {
       method: "POST",
       headers: {
-        "Content-Type": "text/plain"   // 🔥 IMPORTANT
+        "Content-Type": "text/plain"
       },
       body: JSON.stringify(data)
     }).then(r => r.json());
   },
 
-  get(type) {
-    // GET requests are already safe
+  get(type){
     return fetch(
       `${API_URL}?type=${encodeURIComponent(type)}&code=${encodeURIComponent(state.session.code)}`
     ).then(r => r.json());
   }
 };
 
-
+/* =====================================================
+   AUTH MODULE
+===================================================== */
 const auth = {
-  login:(c,p)=>api.post({action:"login",code:c,pin:p}).then(r=>{
-    if(r.ok) state.session={code:c,names:r.names}; return r;
-  }),
-  create:(c,p,n)=>api.post({action:"create",code:c,pin:p,names:n}),
-  logout:()=>{state.session=null;clearInterval(state.chatTimer);ui.showLogin();}
+  login(code, pin){
+    return api.post({
+      action: "login",
+      code, pin
+    }).then(res => {
+      if(res.ok){
+        state.session = { code, names: res.names };
+      }
+      return res;
+    });
+  },
+
+  create(code, pin, names){
+    return api.post({
+      action: "create",
+      code, pin, names
+    });
+  },
+
+  logout(){
+    state.session = null;
+    clearInterval(state.chatTimer);
+    ui.showLogin();
+  }
 };
 
+/* =====================================================
+   FEATURE MODULES
+===================================================== */
 const chat = {
-  send:m=>api.post({action:"chat",code:state.session.code,sender:"Me",msg:m}),
-  fetch:()=>api.get("Chat")
+  send(msg){
+    return api.post({
+      action: "chat",
+      code: state.session.code,
+      sender: "Me",
+      msg
+    });
+  },
+  fetch(){
+    return api.get("Chat");
+  }
 };
 
-const notes = { add:n=>api.post({action:"note",code:state.session.code,note:n}) };
+const notes = {
+  add(note){
+    return api.post({
+      action: "note",
+      code: state.session.code,
+      note
+    });
+  }
+};
 
 const gallery = {
-  add:(u,c)=>api.post({action:"gallery",code:state.session.code,url:u,caption:c}),
-  fetch:()=>api.get("Gallery")
+  add(url, caption){
+    return api.post({
+      action: "gallery",
+      code: state.session.code,
+      url, caption
+    });
+  },
+  fetch(){
+    return api.get("Gallery");
+  }
 };
 
 const checklist = {
-  toggle:(i,d)=>api.post({action:"check",code:state.session.code,id:i,done:d}),
-  fetch:()=>api.get("Checklist")
+  toggle(id, done){
+    return api.post({
+      action: "check",
+      code: state.session.code,
+      id, done
+    });
+  },
+  fetch(){
+    return api.get("Checklist");
+  }
 };
 
+/* =====================================================
+   UI
+===================================================== */
 const ui = {
-  showLogin:()=>{loginCard.style.display="block";createCard.style.display="none";app.style.display="none"},
-  showCreate:()=>{loginCard.style.display="none";createCard.style.display="block"},
-  showApp:()=>{loginCard.style.display="none";createCard.style.display="none";app.style.display="block"},
-  renderChat:d=>chatBox.innerHTML=d.map(m=>`<p><b>${m[2]}:</b> ${m[3]}</p>`).join(""),
-  renderGallery:d=>galleryBox.innerHTML=d.map(g=>`<img src="${g[2]}" style="width:100%;border-radius:10px"><p>${g[3]}</p>`).join(""),
-  renderChecklist:d=>checklistBox.innerHTML=d.map(i=>`
-    <div class="${i[4]?'gift':''}">
-      <input type="checkbox" ${i[3]?'checked':''}
-        onchange="toggleChecklist(${i[1]},this.checked)">
-      ${i[2]}
-    </div>`).join("")
+  showLogin(){
+    loginCard.style.display = "block";
+    createCard.style.display = "none";
+    app.style.display = "none";
+  },
+  showCreate(){
+    loginCard.style.display = "none";
+    createCard.style.display = "block";
+  },
+  showApp(){
+    loginCard.style.display = "none";
+    createCard.style.display = "none";
+    app.style.display = "block";
+  },
+
+  renderChat(data){
+    chatBox.innerHTML = data.map(
+      m => `<div class="chat-msg"><b>${m[2]}:</b> ${m[3]}</div>`
+    ).join("");
+  },
+
+  renderGallery(data){
+    galleryBox.innerHTML = data.map(
+      g => `<img src="${g[2]}" style="width:100%;border-radius:10px">
+            <p>${g[3]}</p>`
+    ).join("");
+  },
+
+  renderChecklist(data){
+    checklistBox.innerHTML = data.map(
+      i => `
+        <div class="${i[4] ? 'gift' : ''}">
+          <input type="checkbox"
+            ${i[3] ? 'checked' : ''}
+            onchange="toggleChecklist(${i[1]}, this.checked)">
+          ${i[2]}
+        </div>
+      `
+    ).join("");
+  }
 };
 
+/* =====================================================
+   CONTROLLERS
+===================================================== */
 function login(){
-  auth.login(codeInput.value,pinInput.value).then(r=>{
-    if(r.ok){ui.showApp();initApp();} else alert("Wrong details 💔");
-  });
+  auth.login(codeInput.value, pinInput.value)
+    .then(res => {
+      if(res.ok){
+        ui.showApp();
+        initApp();
+      } else {
+        alert("Wrong couple code or PIN 💔");
+      }
+    });
 }
-function createCouple(){
-  auth.create(newCode.value,newPin.value,names.value).then(r=>{
-    if(r.ok){codeInput.value=newCode.value;pinInput.value=newPin.value;login();}
-    else alert(r.msg);
-  });
-}
-function sendMessage(){ if(msgInput.value) chat.send(msgInput.value).then(()=>msgInput.value=""); }
-function saveNote(){ if(noteInput.value) notes.add(noteInput.value).then(()=>noteInput.value=""); }
-function addGallery(){ gallery.add(imgInput.value,capInput.value).then(loadGallery); }
-function toggleChecklist(id,done){ checklist.toggle(id,done); }
 
+function createCouple(){
+  auth.create(newCode.value, newPin.value, names.value)
+    .then(res => {
+      if(res.ok){
+        codeInput.value = newCode.value;
+        pinInput.value = newPin.value;
+        login();
+      } else {
+        alert(res.msg);
+      }
+    });
+}
+
+function sendMessage(){
+  if(!msgInput.value) return;
+  chat.send(msgInput.value)
+    .then(() => msgInput.value = "");
+}
+
+function saveNote(){
+  if(!noteInput.value) return;
+  notes.add(noteInput.value)
+    .then(() => noteInput.value = "");
+}
+
+function addGallery(){
+  if(!imgInput.value) return;
+  gallery.add(imgInput.value, capInput.value)
+    .then(loadGallery);
+}
+
+function toggleChecklist(id, done){
+  checklist.toggle(id, done);
+}
+
+/* =====================================================
+   LOADERS
+===================================================== */
 function loadChat(){ chat.fetch().then(ui.renderChat); }
 function loadGallery(){ gallery.fetch().then(ui.renderGallery); }
 function loadChecklist(){ checklist.fetch().then(ui.renderChecklist); }
 
+/* =====================================================
+   INIT
+===================================================== */
 function initApp(){
-  loadChat(); loadGallery(); loadChecklist();
-  state.chatTimer=setInterval(loadChat,CHAT_REFRESH);
+  loadChat();
+  loadGallery();
+  loadChecklist();
+  state.chatTimer = setInterval(loadChat, CHAT_REFRESH_MS);
 }
+
 ui.showLogin();
 </script>
 
 </body>
 </html>
-<!-- Blogger frontend file -->
