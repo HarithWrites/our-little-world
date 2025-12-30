@@ -122,23 +122,18 @@ const state = {
    API CORE (🔥 CORS SAFE 🔥)
    ❗ NEVER use fetch() directly anywhere else
 ===================================================== */
-const api = {
-  post(data){
-    return fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain"
-      },
-      body: JSON.stringify(data)
-    }).then(r => r.json());
-  },
+function sendMessage() {
+  if (!msgInput.value) return;
 
-  get(type){
-    return fetch(
-      `${API_URL}?type=${encodeURIComponent(type)}&code=${encodeURIComponent(state.session.code)}`
-    ).then(r => r.json());
-  }
-};
+  api.post({
+    action: "chat",
+    code: state.session.code,
+    sender: "Me",
+    msg: msgInput.value
+  }).then(() => {
+    msgInput.value = "";
+  });
+}
 
 /* =====================================================
    AUTH MODULE
