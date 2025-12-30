@@ -90,6 +90,22 @@ a{color:#ff5fa2;text-decoration:none}
   margin-top: 4px;
   text-align: right;
 }
+
+select{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  margin-bottom:10px;
+}
+
+.sender{
+  font-size:12px;
+  font-weight:bold;
+  margin-bottom:4px;
+  opacity:0.85;
+}
+
   
 </style>
 </head>
@@ -112,11 +128,20 @@ a{color:#ff5fa2;text-decoration:none}
   <h3>✨ Create Your Space</h3>
   <input id="newCode" placeholder="Choose Couple Code">
   <input id="newPin" placeholder="Choose PIN">
-  <input id="names" placeholder="Names (Alex ❤️ Sam)">
+  <input id="names" placeholder="Names (Alex & Sam)">
   <button onclick="createCouple()">Create & Enter</button>
   <p style="text-align:center">
     <a href="#" onclick="ui.showLogin()">Back to login</a>
   </p>
+</div>
+
+  <!-- WHO ARE YOU -->
+<div class="card" id="whoCard" style="display:none">
+  <h3>💖 Who are you?</h3>
+  <select id="whoSelect">
+    <option value="">Select your name</option>
+  </select>
+  <button onclick="confirmWho()">Continue</button>
 </div>
 
 <!-- APP -->
@@ -141,7 +166,11 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyWDLZ0lSz1CvUmyNhXJqTd
    STATE
 ===================================================== */
 const state = {
-  coupleCode: null
+  coupleCode: null,
+  myName: null,
+  partnerName: null,
+  allNames: [],
+  chatTimer: null
 };
 
 /* =====================================================
@@ -171,19 +200,20 @@ const ui = {
     createCard.style.display = "none";
     app.style.display = "block";
   },
-  renderChat(messages){
+  
+ renderChat(messages) {
   if (!Array.isArray(messages)) return;
 
   chatBox.innerHTML = messages.map(m => {
     const sender = m[2];
     const msg    = m[3];
     const time   = formatTime(m[1]);
-
-    const mine = sender === "Me";
+    const mine   = sender === state.myName;
 
     return `
       <div class="chat-row ${mine ? 'me' : 'partner'}">
         <div class="bubble">
+          <div class="sender">${sender}</div>
           <div class="text">${msg}</div>
           <div class="time">${time}</div>
         </div>
@@ -191,31 +221,47 @@ const ui = {
     `;
   }).join("");
 
-  // 🔥 AUTO-SCROLL
-  chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: "smooth" });
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
+
 
 };
 
 /* =====================================================
    AUTH
-===================================================== */
-function login(){
+===================================================== */  
+  function login() {
   apiGet({
     action: "login",
-    code: codeInput.value,
-    pin: pinInput.value
+    code: codeInput.value.trim(),
+    pin: pinInput.value.trim()
   }).then(res => {
-    if(res.ok){
-      state.coupleCode = codeInput.value;
-      ui.showApp();
-      loadChat();
-      setInterval(loadChat, 3000);
-    } else {
+    if (!res.ok) {
       alert("Wrong couple code or PIN 💔");
+      return;
+    }
+
+    state.coupleCode = codeInput.value.trim();
+
+    // 💖 Split names from backend
+    state.allNames = (res.names || "")
+      .split("&")
+      .map(n => n.trim())
+      .filter(Boolean);
+
+    // Try restore identity
+    const saved = localStorage.getItem("who_" + state.coupleCode);
+
+    if (saved && state.allNames.includes(saved)) {
+      setIdentity(saved);
+      ui.showApp();
+      startChatPolling();
+    } else {
+      showWhoSelector();
     }
   });
 }
+
 
 function createCouple(){
   apiGet({
@@ -234,22 +280,62 @@ function createCouple(){
   });
 }
 
+  function showWhoSelector() {
+  whoSelect.innerHTML =
+    `<option value="">Select your name</option>` +
+    state.allNames.map(n =>
+      `<option value="${n}">${n}</option>`
+    ).join("");
+
+  loginCard.style.display = "none";
+  createCard.style.display = "none";
+  app.style.display = "none";
+  whoCard.style.display = "block";
+}
+
+  function confirmWho() {
+  const selected = whoSelect.value;
+  if (!selected) {
+    alert("Please select your name 💖");
+    return;
+  }
+
+  setIdentity(selected);
+
+  localStorage.setItem(
+    "who_" + state.coupleCode,
+    selected
+  );
+
+  whoCard.style.display = "none";
+  ui.showApp();
+  startChatPolling();
+}
+
+  function setIdentity(me) {
+  state.myName = me;
+  state.partnerName =
+    state.allNames.find(n => n !== me) || "Partner";
+}
+
 /* =====================================================
    CHAT
 ===================================================== */
-function sendMessage(){
-  if(!msgInput.value) return;
+function sendMessage() {
+  const msg = msgInput.value.trim();
+  if (!msg) return;
 
   apiGet({
     action: "chat",
     code: state.coupleCode,
-    sender: "Me",
-    msg: msgInput.value
+    sender: state.myName,
+    msg: msg
   }).then(() => {
     msgInput.value = "";
     loadChat();
   });
 }
+
 
 function loadChat(){
   apiGet({
