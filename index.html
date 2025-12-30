@@ -38,11 +38,6 @@ input,textarea{
 .chat-msg{
   margin:6px 0;
 }
-.gift{
-  background:linear-gradient(135deg,#ff5fa2,#ffc371);
-  padding:6px;
-  border-radius:8px;
-}
 a{color:#ff5fa2;text-decoration:none}
 </style>
 </head>
@@ -82,141 +77,29 @@ a{color:#ff5fa2;text-decoration:none}
     <button onclick="sendMessage()">Send</button>
   </div>
 
-  <div class="card">
-    <h3>💌 Love Note</h3>
-    <textarea id="noteInput" placeholder="One line from your heart"></textarea>
-    <button onclick="saveNote()">Save</button>
-  </div>
-
-  <div class="card">
-    <h3>📸 Memory Gallery</h3>
-    <input id="imgInput" placeholder="Image URL">
-    <input id="capInput" placeholder="Caption">
-    <button onclick="addGallery()">Add Memory</button>
-    <div id="galleryBox"></div>
-  </div>
-
-  <div class="card">
-    <h3>✅ Checklist</h3>
-    <div id="checklistBox"></div>
-  </div>
-
 </div>
 
 <script>
 /* =====================================================
    CONFIG
 ===================================================== */
-const API_URL = "https://script.google.com/macros/s/AKfycbxWpYFN-OkQTlWoJsKkyIWvPJajoqKegkEb37ZA3HMoYRIt-7q5xrgpRSJjWOxGlQVZ/exec";
-const CHAT_REFRESH_MS = 3000;
+const API_URL = "https://script.google.com/macros/s/AKfycbwZfNqIGGKjuiiwVkxyOtsuI84PKJLwdoKzjif2Jl5-lcbHuDEk4ZNWS3Rn_UyB3nhQ/exec";
 
 /* =====================================================
    STATE
 ===================================================== */
 const state = {
-  session: null,
-  chatTimer: null
+  coupleCode: null
 };
 
 /* =====================================================
-   API CORE (🔥 CORS SAFE 🔥)
-   ❗ NEVER use fetch() directly anywhere else
+   API HELPER (GET ONLY – CORS SAFE)
 ===================================================== */
-function sendMessage() {
-  if (!msgInput.value) return;
-
-  api.post({
-    action: "chat",
-    code: state.session.code,
-    sender: "Me",
-    msg: msgInput.value
-  }).then(() => {
-    msgInput.value = "";
-  });
+function apiGet(params){
+  const qs = new URLSearchParams(params).toString();
+  return fetch(API_URL + "?" + qs)
+    .then(res => res.json());
 }
-
-/* =====================================================
-   AUTH MODULE
-===================================================== */
-const auth = {
-  login(code, pin){
-    return api.post({
-      action: "login",
-      code, pin
-    }).then(res => {
-      if(res.ok){
-        state.session = { code, names: res.names };
-      }
-      return res;
-    });
-  },
-
-  create(code, pin, names){
-    return api.post({
-      action: "create",
-      code, pin, names
-    });
-  },
-
-  logout(){
-    state.session = null;
-    clearInterval(state.chatTimer);
-    ui.showLogin();
-  }
-};
-
-/* =====================================================
-   FEATURE MODULES
-===================================================== */
-const chat = {
-  send(msg){
-    return api.post({
-      action: "chat",
-      code: state.session.code,
-      sender: "Me",
-      msg
-    });
-  },
-  fetch(){
-    return api.get("Chat");
-  }
-};
-
-const notes = {
-  add(note){
-    return api.post({
-      action: "note",
-      code: state.session.code,
-      note
-    });
-  }
-};
-
-const gallery = {
-  add(url, caption){
-    return api.post({
-      action: "gallery",
-      code: state.session.code,
-      url, caption
-    });
-  },
-  fetch(){
-    return api.get("Gallery");
-  }
-};
-
-const checklist = {
-  toggle(id, done){
-    return api.post({
-      action: "check",
-      code: state.session.code,
-      id, done
-    });
-  },
-  fetch(){
-    return api.get("Checklist");
-  }
-};
 
 /* =====================================================
    UI
@@ -236,101 +119,78 @@ const ui = {
     createCard.style.display = "none";
     app.style.display = "block";
   },
-
-  renderChat(data){
-    chatBox.innerHTML = data.map(
+  renderChat(messages){
+    chatBox.innerHTML = messages.map(
       m => `<div class="chat-msg"><b>${m[2]}:</b> ${m[3]}</div>`
-    ).join("");
-  },
-
-  renderGallery(data){
-    galleryBox.innerHTML = data.map(
-      g => `<img src="${g[2]}" style="width:100%;border-radius:10px">
-            <p>${g[3]}</p>`
-    ).join("");
-  },
-
-  renderChecklist(data){
-    checklistBox.innerHTML = data.map(
-      i => `
-        <div class="${i[4] ? 'gift' : ''}">
-          <input type="checkbox"
-            ${i[3] ? 'checked' : ''}
-            onchange="toggleChecklist(${i[1]}, this.checked)">
-          ${i[2]}
-        </div>
-      `
     ).join("");
   }
 };
 
 /* =====================================================
-   CONTROLLERS
+   AUTH
 ===================================================== */
 function login(){
-  auth.login(codeInput.value, pinInput.value)
-    .then(res => {
-      if(res.ok){
-        ui.showApp();
-        initApp();
-      } else {
-        alert("Wrong couple code or PIN 💔");
-      }
-    });
+  apiGet({
+    action: "login",
+    code: codeInput.value,
+    pin: pinInput.value
+  }).then(res => {
+    if(res.ok){
+      state.coupleCode = codeInput.value;
+      ui.showApp();
+      loadChat();
+      setInterval(loadChat, 3000);
+    } else {
+      alert("Wrong couple code or PIN 💔");
+    }
+  });
 }
 
 function createCouple(){
-  auth.create(newCode.value, newPin.value, names.value)
-    .then(res => {
-      if(res.ok){
-        codeInput.value = newCode.value;
-        pinInput.value = newPin.value;
-        login();
-      } else {
-        alert(res.msg);
-      }
-    });
-}
-
-function sendMessage(){
-  if(!msgInput.value) return;
-  chat.send(msgInput.value)
-    .then(() => msgInput.value = "");
-}
-
-function saveNote(){
-  if(!noteInput.value) return;
-  notes.add(noteInput.value)
-    .then(() => noteInput.value = "");
-}
-
-function addGallery(){
-  if(!imgInput.value) return;
-  gallery.add(imgInput.value, capInput.value)
-    .then(loadGallery);
-}
-
-function toggleChecklist(id, done){
-  checklist.toggle(id, done);
+  apiGet({
+    action: "create",
+    code: newCode.value,
+    pin: newPin.value,
+    names: names.value
+  }).then(res => {
+    if(res.ok){
+      codeInput.value = newCode.value;
+      pinInput.value = newPin.value;
+      login();
+    } else {
+      alert(res.msg);
+    }
+  });
 }
 
 /* =====================================================
-   LOADERS
+   CHAT
 ===================================================== */
-function loadChat(){ chat.fetch().then(ui.renderChat); }
-function loadGallery(){ gallery.fetch().then(ui.renderGallery); }
-function loadChecklist(){ checklist.fetch().then(ui.renderChecklist); }
+function sendMessage(){
+  if(!msgInput.value) return;
+
+  apiGet({
+    action: "chat",
+    code: state.coupleCode,
+    sender: "Me",
+    msg: msgInput.value
+  }).then(() => {
+    msgInput.value = "";
+    loadChat();
+  });
+}
+
+function loadChat(){
+  apiGet({
+    action: "fetch",
+    type: "Chat",
+    code: state.coupleCode
+  }).then(ui.renderChat);
+}
 
 /* =====================================================
    INIT
 ===================================================== */
-function initApp(){
-  loadChat();
-  loadGallery();
-  loadChecklist();
-  state.chatTimer = setInterval(loadChat, CHAT_REFRESH_MS);
-}
-
 ui.showLogin();
 </script>
 
