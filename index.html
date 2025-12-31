@@ -6,110 +6,106 @@
 <title>Our Little World 💖</title>
 
 <style>
-*{ box-sizing:border-box; }
-
+*{box-sizing:border-box}
 body{
   margin:0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:#fff0f6;
 }
-
 .card{
   background:#fff;
   margin:12px auto;
   padding:16px;
-  border-radius:14px;
+  border-radius:16px;
   max-width:520px;
   box-shadow:0 4px 12px rgba(0,0,0,.08);
 }
-
-h3{ margin-top:0; }
-
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#ff5fa2;
-  color:#fff;
-  font-weight:600;
-  font-size:15px;
-}
-
-button.secondary{
-  background:#eee;
-  color:#333;
-}
-
-input, textarea, select{
+h3{margin-top:0}
+.hidden{display:none!important}
+input,select,textarea{
   width:100%;
   padding:10px;
   margin:6px 0;
   border-radius:8px;
   border:1px solid #ddd;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#ff5fa2;
+  color:#fff;
+  font-weight:600;
   font-size:15px;
 }
-
-a{
-  color:#ff5fa2;
-  text-decoration:none;
+button.secondary{
+  background:#eee;
+  color:#333;
 }
+a{color:#ff5fa2;text-decoration:none}
 
-.hidden{
-  display:none !important;
+/* DASHBOARD GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+.grid button{
+  background:#ffe3ef;
+  color:#ff2f92;
+  font-size:15px;
+  padding:22px 10px;
+}
+.grid span{
+  display:block;
+  font-size:26px;
 }
 
 /* CHAT */
-#chatBox{
-  max-height:300px;
-  overflow-y:auto;
-  padding:4px;
-}
-
-.chat-row{
-  display:flex;
-  margin:6px 0;
-}
-
-.chat-row.me{ justify-content:flex-end; }
-.chat-row.partner{ justify-content:flex-start; }
-
+#chatBox{max-height:300px;overflow-y:auto}
+.chat-row{display:flex;margin:6px 0}
+.chat-row.me{justify-content:flex-end}
+.chat-row.partner{justify-content:flex-start}
 .bubble{
   max-width:75%;
   padding:10px;
   border-radius:14px;
   font-size:14px;
 }
-
 .chat-row.me .bubble{
-  background:#ff5fa2;
-  color:#fff;
-  border-bottom-right-radius:4px;
+  background:#ff5fa2;color:#fff;border-bottom-right-radius:4px
 }
-
 .chat-row.partner .bubble{
-  background:#f1f1f1;
-  color:#333;
-  border-bottom-left-radius:4px;
+  background:#f1f1f1;color:#333;border-bottom-left-radius:4px
 }
+.sender{font-size:12px;font-weight:600;opacity:.85}
+.time{font-size:11px;opacity:.7;text-align:right}
 
-.sender{
-  font-size:12px;
-  font-weight:600;
-  opacity:.85;
-  margin-bottom:2px;
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:6px;border-bottom:1px solid #eee;text-align:left}
+th{font-size:12px;opacity:.7}
+.status-Completed{color:green;font-weight:600}
+.status-In\ Progress{color:#ff9800;font-weight:600}
+.status-Yet\ to\ start{color:#888}
+.status-Withdrawn{text-decoration:line-through;color:#999}
+
+/* GALLERY */
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
 }
-
-.time{
-  font-size:11px;
-  opacity:.7;
-  text-align:right;
-  margin-top:4px;
+.gallery img{
+  width:100%;
+  border-radius:10px;
 }
-
-/* DASHBOARD */
-#dashboard button{
-  margin:8px 0;
+.note{
+  background:#fff7fb;
+  padding:10px;
+  border-radius:10px;
+  margin:6px 0;
 }
 </style>
 </head>
@@ -122,9 +118,7 @@ a{
   <input id="codeInput" placeholder="Couple Code">
   <input id="pinInput" type="password" placeholder="PIN">
   <button id="loginBtn">Enter</button>
-  <p style="text-align:center">
-    <a href="#" id="goCreate">Create new couple 💖</a>
-  </p>
+  <p style="text-align:center"><a href="#" id="goCreate">Create new couple 💖</a></p>
 </div>
 
 <!-- CREATE -->
@@ -134,9 +128,7 @@ a{
   <input id="newPin" placeholder="PIN">
   <input id="names" placeholder="Names (Alex & Sam)">
   <button id="createBtn">Create & Enter</button>
-  <p style="text-align:center">
-    <a href="#" id="goLogin">Back to login</a>
-  </p>
+  <p style="text-align:center"><a href="#" id="goLogin">Back to login</a></p>
 </div>
 
 <!-- WHO -->
@@ -149,15 +141,16 @@ a{
 <!-- DASHBOARD -->
 <div class="card hidden" id="dashboard">
   <h3>💖 Our Little World</h3>
-  <button data-open="chat">💬 Our Chat</button>
-  <button data-open="notes">💌 Our Notes</button>
-  <button data-open="gallery">📸 Our Gallery</button>
-  <button data-open="todo">✅ Our To-Do / Goals</button>
-  <button data-open="timer">⏳ Our Next Meet</button>
+  <div class="grid">
+    <button data-open="chat"><span>💬</span>Chat</button>
+    <button data-open="goals"><span>🎯</span>Goals</button>
+    <button data-open="notes"><span>💌</span>Notes</button>
+    <button data-open="gallery"><span>📸</span>Gallery</button>
+  </div>
 </div>
 
 <!-- CHAT -->
-<div class="card hidden feature" id="chat">
+<div class="card hidden" id="chat">
   <h3>💬 Our Chat</h3>
   <div id="chatBox"></div>
   <input id="msgInput" placeholder="Say something sweet 💕">
@@ -165,125 +158,191 @@ a{
   <button class="secondary" data-back>⬅ Back</button>
 </div>
 
-<!-- PLACEHOLDERS -->
-<div class="card hidden feature" id="notes"><h3>💌 Notes</h3><p>Coming soon…</p><button class="secondary" data-back>⬅ Back</button></div>
-<div class="card hidden feature" id="gallery"><h3>📸 Gallery</h3><p>Coming soon…</p><button class="secondary" data-back>⬅ Back</button></div>
-<div class="card hidden feature" id="todo"><h3>✅ Goals</h3><p>Coming soon…</p><button class="secondary" data-back>⬅ Back</button></div>
-<div class="card hidden feature" id="timer"><h3>⏳ Next Meet</h3><p>Coming soon…</p><button class="secondary" data-back>⬅ Back</button></div>
+<!-- GOALS -->
+<div class="card hidden" id="goals">
+  <h3>🎯 Our Goals</h3>
+
+  <input id="goalDesc" placeholder="Goal description">
+  <input id="goalDate" type="date">
+  <select id="goalStatus">
+    <option>Yet to start</option>
+    <option>In Progress</option>
+    <option>Completed</option>
+    <option>Withdrawn</option>
+  </select>
+  <input id="goalRemarks" placeholder="Remarks">
+  <button id="addGoalBtn">Add Goal</button>
+
+  <p id="goalSummary"></p>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Goal</th><th>Status</th><th>By</th><th>❌</th></tr>
+    </thead>
+    <tbody id="goalsBody"></tbody>
+  </table>
+
+  <button class="secondary" data-back>⬅ Back</button>
+</div>
+
+<!-- NOTES -->
+<div class="card hidden" id="notes">
+  <h3>💌 Notes</h3>
+  <textarea id="noteText" placeholder="Write a love note…"></textarea>
+  <button id="addNoteBtn">Add Note</button>
+  <div id="notesList"></div>
+  <button class="secondary" data-back>⬅ Back</button>
+</div>
+
+<!-- GALLERY -->
+<div class="card hidden" id="gallery">
+  <h3>📸 Gallery</h3>
+  <input id="imgUrl" placeholder="Image URL">
+  <input id="imgCap" placeholder="Caption">
+  <button id="addImgBtn">Add Image</button>
+  <div class="gallery" id="galleryList"></div>
+  <button class="secondary" data-back>⬅ Back</button>
+</div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded",()=>{
 
-const API_URL = "https://script.google.com/macros/s/AKfycbxd6J1dUe78TfMWJ5wFdNNhazqZ6PsDoSjeeU4rTa71SmgExvsyNYUGr5PSkQAQxRSI/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwajmkDYKPh4yRhnPxs4gCn-4o5BKSekwpqMe9GU1SOpE5H7WFlKyr0waHfJslv8Rh8/exec";
 const CHAT_INTERVAL = 3000;
 
-const state = {
-  coupleCode:null,
-  myName:null,
-  allNames:[],
-  timer:null
-};
-
-const $ = id => document.getElementById(id);
-const sections = ["loginCard","createCard","whoCard","dashboard","chat","notes","gallery","todo","timer"];
+const state={coupleCode:null,myName:null,allNames:[],timer:null};
+const $=id=>document.getElementById(id);
+const screens=["loginCard","createCard","whoCard","dashboard","chat","goals","notes","gallery"];
 
 function show(id){
-  sections.forEach(s => $(s).classList.add("hidden"));
+  screens.forEach(s=>$(s).classList.add("hidden"));
   $(id).classList.remove("hidden");
 }
-
-function api(params){
-  return fetch(API_URL + "?" + new URLSearchParams(params))
-    .then(r => r.json());
+function api(p){
+  return fetch(API_URL+"?"+new URLSearchParams(p)).then(r=>r.json());
 }
 
 /* LOGIN */
-$("loginBtn").onclick = () => {
-  api({
-    action:"login",
-    code:$("codeInput").value.trim(),
-    pin:$("pinInput").value.trim()
-  }).then(res=>{
-    if(!res.ok) return alert("Wrong details 💔");
-
-    state.coupleCode = $("codeInput").value.trim();
-    state.allNames = (res.names||"").split("&").map(n=>n.trim());
-    const saved = localStorage.getItem("who_"+state.coupleCode);
-
+$("loginBtn").onclick=()=>{
+  api({action:"login",code:$("codeInput").value,pin:$("pinInput").value})
+  .then(r=>{
+    if(!r.ok) return alert("Wrong details 💔");
+    state.coupleCode=$("codeInput").value;
+    state.allNames=(r.names||"").split("&").map(n=>n.trim());
+    const saved=localStorage.getItem("who_"+state.coupleCode);
     if(saved && state.allNames.includes(saved)){
-      state.myName = saved;
-      show("dashboard");
-      startChat();
+      state.myName=saved; show("dashboard"); startChat();
     }else{
-      $("whoSelect").innerHTML = state.allNames.map(n=>`<option>${n}</option>`).join("");
+      $("whoSelect").innerHTML=state.allNames.map(n=>`<option>${n}</option>`).join("");
       show("whoCard");
     }
   });
 };
 
-$("createBtn").onclick = () => {
-  api({
-    action:"create",
-    code:$("newCode").value,
-    pin:$("newPin").value,
-    names:$("names").value
-  }).then(res=>{
-    if(!res.ok) return alert(res.msg||"Error");
-    $("codeInput").value = $("newCode").value;
-    $("pinInput").value = $("newPin").value;
+$("createBtn").onclick=()=>{
+  api({action:"create",code:$("newCode").value,pin:$("newPin").value,names:$("names").value})
+  .then(r=>{
+    if(!r.ok) return alert(r.msg);
+    $("codeInput").value=$("newCode").value;
+    $("pinInput").value=$("newPin").value;
     show("loginCard");
   });
 };
 
-$("goCreate").onclick = e => (e.preventDefault(), show("createCard"));
-$("goLogin").onclick  = e => (e.preventDefault(), show("loginCard"));
-
-$("whoConfirm").onclick = () => {
-  state.myName = $("whoSelect").value;
-  localStorage.setItem("who_"+state.coupleCode, state.myName);
-  show("dashboard");
-  startChat();
+$("whoConfirm").onclick=()=>{
+  state.myName=$("whoSelect").value;
+  localStorage.setItem("who_"+state.coupleCode,state.myName);
+  show("dashboard"); startChat();
 };
 
-/* DASHBOARD NAV */
+$("goCreate").onclick=e=>(e.preventDefault(),show("createCard"));
+$("goLogin").onclick=e=>(e.preventDefault(),show("loginCard"));
+
 document.querySelectorAll("[data-open]").forEach(b=>{
-  b.onclick = ()=> show(b.dataset.open);
+  b.onclick=()=>{ show(b.dataset.open); if(b.dataset.open==="goals") loadGoals(); if(b.dataset.open==="notes") loadNotes(); if(b.dataset.open==="gallery") loadGallery(); };
 });
-document.querySelectorAll("[data-back]").forEach(b=>{
-  b.onclick = ()=> show("dashboard");
-});
+document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show("dashboard"));
 
 /* CHAT */
-$("sendBtn").onclick = () => {
-  const msg = $("msgInput").value.trim();
+$("sendBtn").onclick=()=>{
+  const msg=$("msgInput").value.trim();
   if(!msg) return;
-  api({ action:"chat", code:state.coupleCode, sender:state.myName, msg });
+  api({action:"chat",code:state.coupleCode,sender:state.myName,msg});
   $("msgInput").value="";
 };
-
 function loadChat(){
-  api({ action:"fetch", type:"Chat", code:state.coupleCode })
+  api({action:"fetch",type:"Chat",code:state.coupleCode})
   .then(rows=>{
-    if(!Array.isArray(rows)) return;
-    $("chatBox").innerHTML = rows.map(r=>{
-      const mine = r[2]===state.myName;
-      return `
-      <div class="chat-row ${mine?"me":"partner"}">
+    $("chatBox").innerHTML=(rows||[]).map(r=>{
+      const mine=r[2]===state.myName;
+      return `<div class="chat-row ${mine?"me":"partner"}">
         <div class="bubble">
-          <div class="sender">${r[2]}</div>
-          ${r[3]}
-          <div class="time">${new Date(r[1]).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}</div>
-        </div>
-      </div>`;
+          <div class="sender">${r[2]}</div>${r[3]}
+          <div class="time">${new Date(r[1]).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</div>
+        </div></div>`;
     }).join("");
-    $("chatBox").scrollTop = $("chatBox").scrollHeight;
+    $("chatBox").scrollTop=$("chatBox").scrollHeight;
   });
 }
-
 function startChat(){
   clearInterval(state.timer);
   loadChat();
-  state.timer = setInterval(loadChat, CHAT_INTERVAL);
+  state.timer=setInterval(loadChat,CHAT_INTERVAL);
+}
+
+/* GOALS */
+$("addGoalBtn").onclick=()=>{
+  api({action:"addGoal",code:state.coupleCode,desc:$("goalDesc").value,date:$("goalDate").value,status:$("goalStatus").value,remarks:$("goalRemarks").value,createdBy:state.myName})
+  .then(()=>loadGoals());
+};
+function loadGoals(){
+  api({action:"fetchGoals",code:state.coupleCode})
+  .then(rows=>{
+    let done=0;
+    $("goalsBody").innerHTML=(rows||[]).map(r=>{
+      if(r[4]==="Completed") done++;
+      return `<tr>
+        <td>${r[1]}</td>
+        <td>${r[2]}</td>
+        <td class="status-${r[4].replace(/\s/g,'\\ ')}">${r[4]}</td>
+        <td>${r[6]}</td>
+        <td><button onclick="deleteGoal(${r[1]})">❌</button></td>
+      </tr>`;
+    }).join("");
+    $("goalSummary").innerText=`${done}/${rows.length} completed`;
+  });
+}
+window.deleteGoal=id=>{
+  api({action:"deleteGoal",code:state.coupleCode,id}).then(loadGoals);
+};
+
+/* NOTES */
+$("addNoteBtn").onclick=()=>{
+  api({action:"addNote",code:state.coupleCode,note:$("noteText").value,by:state.myName})
+  .then(()=>{ $("noteText").value=""; loadNotes(); });
+};
+function loadNotes(){
+  api({action:"fetchNotes",code:state.coupleCode})
+  .then(rows=>{
+    $("notesList").innerHTML=(rows||[]).map(r=>`<div class="note"><b>${r[3]}</b><br>${r[2]}</div>`).join("");
+  });
+}
+
+/* GALLERY */
+$("addImgBtn").onclick=()=>{
+  api({action:"addImage",code:state.coupleCode,url:$("imgUrl").value,caption:$("imgCap").value,by:state.myName})
+  .then(()=>{ $("imgUrl").value=$("imgCap").value=""; loadGallery(); });
+};
+function loadGallery(){
+  api({action:"fetchGallery",code:state.coupleCode})
+  .then(rows=>{
+    $("galleryList").innerHTML=(rows||[]).map(r=>`
+      <div>
+        <img src="${r[2]}">
+        <small>${r[3]}</small>
+      </div>
+    `).join("");
+  });
 }
 
 show("loginCard");
