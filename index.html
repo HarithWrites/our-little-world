@@ -94,11 +94,14 @@ th{font-size:12px;opacity:.7}
 /* GALLERY */
 .gallery{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
   gap:10px;
 }
+
 .gallery img{
   width:100%;
+  height:150px;
+  object-fit:cover;
   border-radius:10px;
 }
 .note{
@@ -204,19 +207,24 @@ th{font-size:12px;opacity:.7}
 </div>
 
 <!-- GALLERY -->
+
 <div class="card hidden" id="gallery">
-  <h3>📸 Gallery</h3>
-  <input id="imgUrl" placeholder="Image URL">
-  <input id="imgCap" placeholder="Caption">
-  <button id="addImgBtn">Add Image</button>
+  <h3>📸 Our Gallery</h3>
+
+  <input type="file" id="imgFile" accept="image/*">
+  <input id="imgCap" placeholder="Caption (optional)">
+  <button id="uploadImgBtn">Upload Photo</button>
+
   <div class="gallery" id="galleryList"></div>
+
   <button class="secondary" data-back>⬅ Back</button>
 </div>
+
 
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwajmkDYKPh4yRhnPxs4gCn-4o5BKSekwpqMe9GU1SOpE5H7WFlKyr0waHfJslv8Rh8/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwoemxM5hAIDitSCtIZR-oNFMC_tElpnzPb2ow2K91xGxr53QZWRZXtAXkhzjxMZ1ho/exec";
 const CHAT_INTERVAL = 3000;
 
 const state={coupleCode:null,myName:null,allNames:[],timer:null};
@@ -346,21 +354,69 @@ function loadNotes(){
 }
 
 /* GALLERY */
-$("addImgBtn").onclick=()=>{
-  api({action:"addImage",code:state.coupleCode,url:$("imgUrl").value,caption:$("imgCap").value,by:state.myName})
-  .then(()=>{ $("imgUrl").value=$("imgCap").value=""; loadGallery(); });
+/* ==========================
+   GALLERY – UPLOAD IMAGE
+========================== */
+
+document.getElementById("uploadImgBtn").onclick = () => {
+
+  // 1️⃣ Get selected file
+  const fileInput = document.getElementById("imgFile");
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert("Please select a photo 📸");
+    return;
+  }
+
+  // 2️⃣ Convert image → Base64
+  const reader = new FileReader();
+
+  reader.onload = () => {
+
+    // 3️⃣ Send Base64 to Apps Script
+    api({
+      action: "addImage",
+      code: state.coupleCode,
+      data: reader.result,        // base64 image
+      mimeType: file.type,        // image/jpeg, image/png
+      caption: document.getElementById("imgCap").value,
+      by: state.myName
+    }).then(res => {
+
+      if (!res.ok) {
+        alert("Upload failed ❌");
+        return;
+      }
+
+      // 4️⃣ Reset UI
+      fileInput.value = "";
+      document.getElementById("imgCap").value = "";
+
+      // 5️⃣ Reload gallery
+      loadGallery();
+    });
+  };
+
+  // Start reading file
+  reader.readAsDataURL(file);
 };
+
+  
 function loadGallery(){
-  api({action:"fetchGallery",code:state.coupleCode})
-  .then(rows=>{
-    $("galleryList").innerHTML=(rows||[]).map(r=>`
-      <div>
-        <img src="${r[2]}">
-        <small>${r[3]}</small>
-      </div>
-    `).join("");
+  api({ action:"fetchGallery", code:state.coupleCode })
+  .then(rows => {
+    document.getElementById("galleryList").innerHTML =
+      (rows || []).map(r => `
+        <div>
+          <img src="${r[2]}" alt="">
+          <small>${r[3] || ""}</small><br>
+          <small>by ${r[4]}</small>
+        </div>
+      `).join("");
   });
 }
+
 
 show("loginCard");
 });
