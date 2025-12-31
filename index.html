@@ -116,6 +116,12 @@ select{
   background:#ddd;
   color:#333;
 }
+  #dashboard,
+.feature{
+  width: 100%;
+  box-sizing: border-box;
+}
+
 
   
 </style>
@@ -376,19 +382,18 @@ function createCouple(){
 }
 
   function hideAllSections() {
-  document.getElementById("dashboard").style.display = "none";
-
-  document.querySelectorAll(".feature").forEach(el => {
-    el.style.display = "none";
-  });
+  el.dashboard.style.display = "none";
+  el.chat.style.display = "none";
+  el.notes.style.display = "none";
+  el.gallery.style.display = "none";
+  el.todo.style.display = "none";
+  el.timer.style.display = "none";
 }
-
 
 function showDashboard() {
   hideAllSections();
-  document.getElementById("dashboard").style.display = "block";
+  el.dashboard.style.display = "block";
 }
-
 
 function openSection(name) {
   hideAllSections();
