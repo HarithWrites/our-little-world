@@ -224,7 +224,7 @@ th{font-size:12px;opacity:.7}
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwoemxM5hAIDitSCtIZR-oNFMC_tElpnzPb2ow2K91xGxr53QZWRZXtAXkhzjxMZ1ho/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzXQqDWNFpaM1m7dT2JKeORNDsjuKV6pEgnIUhzRoUZDBn3wq7JgMlEJ83oxap-NFAH/exec";
 const CHAT_INTERVAL = 3000;
 
 const state={coupleCode:null,myName:null,allNames:[],timer:null};
@@ -360,7 +360,6 @@ function loadNotes(){
 
 document.getElementById("uploadImgBtn").onclick = () => {
 
-  // 1️⃣ Get selected file
   const fileInput = document.getElementById("imgFile");
   const file = fileInput.files[0];
 
@@ -369,34 +368,33 @@ document.getElementById("uploadImgBtn").onclick = () => {
     return;
   }
 
-  // 2️⃣ Convert image → Base64
-  const reader = new FileReader();
+  const formData = new FormData();
+  formData.append("action", "addImage");
+  formData.append("code", state.coupleCode);
+  formData.append("by", state.myName);
+  formData.append("caption", document.getElementById("imgCap").value);
+  formData.append("file", file); // 🔥 RAW FILE, NOT BASE64
 
-  reader.onload = () => {
+  fetch(API_URL, {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) {
+      alert("Upload failed ❌");
+      return;
+    }
 
-    // 3️⃣ Send Base64 to Apps Script
-    api({
-      action: "addImage",
-      code: state.coupleCode,
-      data: reader.result,        // base64 image
-      mimeType: file.type,        // image/jpeg, image/png
-      caption: document.getElementById("imgCap").value,
-      by: state.myName
-    }).then(res => {
-
-      if (!res.ok) {
-        alert("Upload failed ❌");
-        return;
-      }
-
-      // 4️⃣ Reset UI
-      fileInput.value = "";
-      document.getElementById("imgCap").value = "";
-
-      // 5️⃣ Reload gallery
-      loadGallery();
-    });
-  };
+    fileInput.value = "";
+    document.getElementById("imgCap").value = "";
+    loadGallery();
+  })
+  .catch(err => {
+    alert("Upload error");
+    console.error(err);
+  });
+};
 
   // Start reading file
   reader.readAsDataURL(file);
