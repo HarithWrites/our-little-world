@@ -332,8 +332,27 @@ function sendMessage() {
     msg: msg
   }).then(() => {
     msgInput.value = "";
-    loadChat();
   });
+}
+
+const CHAT_REFRESH_INTERVAL = 3000;
+
+function startChatPolling() {
+  // 🔒 ensure only one interval exists
+  if (state.chatTimer) {
+    clearInterval(state.chatTimer);
+    state.chatTimer = null;
+  }
+
+  // Load immediately
+  loadChat();
+
+  // Start polling
+  state.chatTimer = setInterval(() => {
+    // Safety guard
+    if (!state.coupleCode || !state.myName) return;
+    loadChat();
+  }, CHAT_REFRESH_INTERVAL);
 }
 
 
@@ -343,6 +362,7 @@ function loadChat(){
     type: "Chat",
     code: state.coupleCode
   }).then(ui.renderChat);
+  console.log("Fetching chat at", new Date().toLocaleTimeString());
 }
 
 function formatTime(value){
