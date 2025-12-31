@@ -220,6 +220,16 @@ const state = {
   chatTimer: null
 };
 
+  const el = {
+  dashboard: document.getElementById("dashboard"),
+  chat: document.getElementById("chatSection"),
+  notes: document.getElementById("notesSection"),
+  gallery: document.getElementById("gallerySection"),
+  todo: document.getElementById("todoSection"),
+  timer: document.getElementById("timerSection")
+};
+
+  
 /* =====================================================
    API HELPER (GET ONLY – CORS SAFE)
 ===================================================== */
@@ -355,7 +365,7 @@ function createCouple(){
   );
 
   whoCard.style.display = "none";
-  ui.showApp();
+  showDashboard();
   startChatPolling();
 }
 
@@ -365,25 +375,28 @@ function createCouple(){
     state.allNames.find(n => n !== me) || "Partner";
 }
 
-  function showDashboard() {
-  hideAllSections();
-  dashboard.style.display = "block";
+  function hideAllSections() {
+  document.getElementById("dashboard").style.display = "none";
+
+  document.querySelectorAll(".feature").forEach(el => {
+    el.style.display = "none";
+  });
 }
+
+
+function showDashboard() {
+  hideAllSections();
+  document.getElementById("dashboard").style.display = "block";
+}
+
 
 function openSection(name) {
   hideAllSections();
-  document.getElementById(name + "Section").style.display = "block";
+  el[name].style.display = "block";
 }
 
 function backToDashboard() {
   showDashboard();
-}
-
-function hideAllSections() {
-  dashboard.style.display = "none";
-  document.querySelectorAll(".feature").forEach(el => {
-    el.style.display = "none";
-  });
 }
 
   
