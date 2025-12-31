@@ -2,115 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Our Little World 💖</title>
 
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:#fff0f6;
-}
-.card{
-  background:#fff;
-  margin:12px auto;
-  padding:16px;
-  border-radius:16px;
-  max-width:520px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-}
-h3{margin-top:0}
-.hidden{display:none!important}
-input,select,textarea{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:8px;
-  border:1px solid #ddd;
-}
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  background:#ff5fa2;
-  color:#fff;
-  font-weight:600;
-  font-size:15px;
-}
-button.secondary{
-  background:#eee;
-  color:#333;
-}
-a{color:#ff5fa2;text-decoration:none}
-
-/* DASHBOARD GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-.grid button{
-  background:#ffe3ef;
-  color:#ff2f92;
-  font-size:15px;
-  padding:22px 10px;
-}
-.grid span{
-  display:block;
-  font-size:26px;
-}
-
-/* CHAT */
-#chatBox{max-height:300px;overflow-y:auto}
-.chat-row{display:flex;margin:6px 0}
-.chat-row.me{justify-content:flex-end}
-.chat-row.partner{justify-content:flex-start}
-.bubble{
-  max-width:75%;
-  padding:10px;
-  border-radius:14px;
-  font-size:14px;
-}
-.chat-row.me .bubble{
-  background:#ff5fa2;color:#fff;border-bottom-right-radius:4px
-}
-.chat-row.partner .bubble{
-  background:#f1f1f1;color:#333;border-bottom-left-radius:4px
-}
-.sender{font-size:12px;font-weight:600;opacity:.85}
-.time{font-size:11px;opacity:.7;text-align:right}
-
-/* TABLE */
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:6px;border-bottom:1px solid #eee;text-align:left}
-th{font-size:12px;opacity:.7}
-.status-Completed{color:green;font-weight:600}
-.status-In\ Progress{color:#ff9800;font-weight:600}
-.status-Yet\ to\ start{color:#888}
-.status-Withdrawn{text-decoration:line-through;color:#999}
-
-/* GALLERY */
-.gallery{
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
-  gap:10px;
-}
-
-.gallery img{
-  width:100%;
-  height:150px;
-  object-fit:cover;
-  border-radius:10px;
-}
-.note{
-  background:#fff7fb;
-  padding:10px;
-  border-radius:10px;
-  margin:6px 0;
-}
-</style>
+<!-- LINK EXTERNAL CSS -->
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -121,7 +17,9 @@ th{font-size:12px;opacity:.7}
   <input id="codeInput" placeholder="Couple Code">
   <input id="pinInput" type="password" placeholder="PIN">
   <button id="loginBtn">Enter</button>
-  <p style="text-align:center"><a href="#" id="goCreate">Create new couple 💖</a></p>
+  <p style="text-align:center">
+    <a href="#" id="goCreate">Create new couple 💖</a>
+  </p>
 </div>
 
 <!-- CREATE -->
@@ -131,7 +29,9 @@ th{font-size:12px;opacity:.7}
   <input id="newPin" placeholder="PIN">
   <input id="names" placeholder="Names (Alex & Sam)">
   <button id="createBtn">Create & Enter</button>
-  <p style="text-align:center"><a href="#" id="goLogin">Back to login</a></p>
+  <p style="text-align:center">
+    <a href="#" id="goLogin">Back to login</a>
+  </p>
 </div>
 
 <!-- WHO -->
@@ -176,21 +76,18 @@ th{font-size:12px;opacity:.7}
   <input id="goalRemarks" placeholder="Remarks">
   <button id="addGoalBtn">Add Goal</button>
 
-  <p id="goalSummary"></p>
-
   <table>
     <thead>
-  <tr>
-    <th>#</th>
-    <th>Goal</th>
-    <th>Target</th>   <!-- ✅ -->
-    <th>Status</th>
-    <th>Remarks</th>       <!-- ✅ -->
-    <th>By</th>
-    <th>❌</th>
-  </tr>
-</thead>
-
+      <tr>
+        <th>#</th>
+        <th>Goal</th>
+        <th>Target</th>
+        <th>Status</th>
+        <th>Remarks</th>
+        <th>By</th>
+        <th>❌</th>
+      </tr>
+    </thead>
     <tbody id="goalsBody"></tbody>
   </table>
 
@@ -200,32 +97,26 @@ th{font-size:12px;opacity:.7}
 <!-- NOTES -->
 <div class="card hidden" id="notes">
   <h3>💌 Notes</h3>
-  <textarea id="noteText" placeholder="Write a love note…"></textarea>
+  <textarea id="noteText" placeholder="Write a note…"></textarea>
   <button id="addNoteBtn">Add Note</button>
   <div id="notesList"></div>
   <button class="secondary" data-back>⬅ Back</button>
 </div>
 
 <!-- GALLERY -->
-
 <div class="card hidden" id="gallery">
-  <h3>📸 Our Gallery</h3>
-
-  <input type="file" id="imgFile" accept="image/*">
-  <input id="imgCap" placeholder="Caption (optional)">
-  <button id="uploadImgBtn">Upload Photo</button>
-
+  <h3>📸 Gallery</h3>
+  <input id="imgUrl" placeholder="Paste image URL">
+  <input id="imgCap" placeholder="Caption">
+  <button id="addImgBtn">Add Image</button>
   <div class="gallery" id="galleryList"></div>
-
   <button class="secondary" data-back>⬅ Back</button>
 </div>
-
 
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzXQqDWNFpaM1m7dT2JKeORNDsjuKV6pEgnIUhzRoUZDBn3wq7JgMlEJ83oxap-NFAH/exec";
-const CHAT_INTERVAL = 3000;
+const API_URL = "https://script.google.com/macros/s/AKfycbzlCGALoe-lRFsrJosPi7kc_DOE8Zg7nAJcPM_xUTn-6rdZmWAzUEvvCXXXStto95GT/exec";
 
 const state={coupleCode:null,myName:null,allNames:[],timer:null};
 const $=id=>document.getElementById(id);
@@ -276,7 +167,12 @@ $("goCreate").onclick=e=>(e.preventDefault(),show("createCard"));
 $("goLogin").onclick=e=>(e.preventDefault(),show("loginCard"));
 
 document.querySelectorAll("[data-open]").forEach(b=>{
-  b.onclick=()=>{ show(b.dataset.open); if(b.dataset.open==="goals") loadGoals(); if(b.dataset.open==="notes") loadNotes(); if(b.dataset.open==="gallery") loadGallery(); };
+  b.onclick=()=>{ 
+    show(b.dataset.open);
+    if(b.dataset.open==="goals") loadGoals();
+    if(b.dataset.open==="notes") loadNotes();
+    if(b.dataset.open==="gallery") loadGallery();
+  };
 });
 document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>show("dashboard"));
 
@@ -296,7 +192,8 @@ function loadChat(){
         <div class="bubble">
           <div class="sender">${r[2]}</div>${r[3]}
           <div class="time">${new Date(r[1]).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</div>
-        </div></div>`;
+        </div>
+      </div>`;
     }).join("");
     $("chatBox").scrollTop=$("chatBox").scrollHeight;
   });
@@ -304,37 +201,35 @@ function loadChat(){
 function startChat(){
   clearInterval(state.timer);
   loadChat();
-  state.timer=setInterval(loadChat,CHAT_INTERVAL);
+  state.timer=setInterval(loadChat,3000);
 }
 
 /* GOALS */
 $("addGoalBtn").onclick=()=>{
-  api({action:"addGoal",code:state.coupleCode,desc:$("goalDesc").value,date:$("goalDate").value,status:$("goalStatus").value,remarks:$("goalRemarks").value,createdBy:state.myName})
-  .then(()=>loadGoals());
+  api({
+    action:"addGoal",
+    code:state.coupleCode,
+    desc:$("goalDesc").value,
+    date:$("goalDate").value,
+    status:$("goalStatus").value,
+    remarks:$("goalRemarks").value,
+    createdBy:state.myName
+  }).then(loadGoals);
 };
 function loadGoals(){
   api({action:"fetchGoals",code:state.coupleCode})
   .then(rows=>{
-    let done=0;
-    $("goalsBody").innerHTML = (rows || []).map(r => {
-      if (r[4] === "Completed") done++;
-    
-      return `
-        <tr>
-          <td>${r[1]}</td>
-          <td>${r[2]}</td>
-          <td>${r[3] ? new Date(r[3]).toLocaleDateString() : ""}</td>   <!-- Target Date -->
-          <td class="status-${r[4].replace(/\s/g,'\\ ')}">${r[4]}</td>
-          <td>${r[5] || ""}</td>   <!-- Remarks -->
-          <td>${r[6]}</td>
-          <td>
-            <button onclick="deleteGoal(${r[1]})">❌</button>
-          </td>
-        </tr>
-      `;
-    }).join("");
-
-    $("goalSummary").innerText=`${done}/${rows.length} completed`;
+    $("goalsBody").innerHTML=(rows||[]).map(r=>`
+      <tr>
+        <td>${r[1]}</td>
+        <td>${r[2]}</td>
+        <td>${r[3]}</td>
+        <td class="status-${r[4].replace(/\s/g,'\\ ')}">${r[4]}</td>
+        <td>${r[5]||""}</td>
+        <td>${r[6]}</td>
+        <td><button onclick="deleteGoal(${r[1]})">❌</button></td>
+      </tr>
+    `).join("");
   });
 }
 window.deleteGoal=id=>{
@@ -349,72 +244,39 @@ $("addNoteBtn").onclick=()=>{
 function loadNotes(){
   api({action:"fetchNotes",code:state.coupleCode})
   .then(rows=>{
-    $("notesList").innerHTML=(rows||[]).map(r=>`<div class="note"><b>${r[3]}</b><br>${r[2]}</div>`).join("");
+    $("notesList").innerHTML=(rows||[]).map(r=>`
+      <div class="note"><b>${r[3]}</b><br>${r[2]}</div>
+    `).join("");
   });
 }
 
 /* GALLERY */
-/* ==========================
-   GALLERY – UPLOAD IMAGE
-========================== */
-
-document.getElementById("uploadImgBtn").onclick = () => {
-
-  const fileInput = document.getElementById("imgFile");
-  const file = fileInput.files[0];
-
-  if (!file) {
-    alert("Please select a photo 📸");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("action", "addImage");
-  formData.append("code", state.coupleCode);
-  formData.append("by", state.myName);
-  formData.append("caption", document.getElementById("imgCap").value);
-  formData.append("file", file); // 🔥 RAW FILE, NOT BASE64
-
-  fetch(API_URL, {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.json())
-  .then(res => {
-    if (!res.ok) {
-      alert("Upload failed ❌");
-      return;
-    }
-
-    fileInput.value = "";
-    document.getElementById("imgCap").value = "";
+$("addImgBtn").onclick=()=>{
+  const url=$("imgUrl").value.trim();
+  if(!url) return alert("Please paste an image URL");
+  api({
+    action:"addImage",
+    code:state.coupleCode,
+    url,
+    caption:$("imgCap").value,
+    by:state.myName
+  }).then(()=>{
+    $("imgUrl").value=$("imgCap").value="";
     loadGallery();
-  })
-  .catch(err => {
-    alert("Upload error");
-    console.error(err);
   });
 };
-
-  // Start reading file
-  reader.readAsDataURL(file);
-};
-
-  
 function loadGallery(){
-  api({ action:"fetchGallery", code:state.coupleCode })
-  .then(rows => {
-    document.getElementById("galleryList").innerHTML =
-      (rows || []).map(r => `
-        <div>
-          <img src="${r[2]}" alt="">
-          <small>${r[3] || ""}</small><br>
-          <small>by ${r[4]}</small>
-        </div>
-      `).join("");
+  api({action:"fetchGallery",code:state.coupleCode})
+  .then(rows=>{
+    $("galleryList").innerHTML=(rows||[]).map(r=>`
+      <div>
+        <img src="${r[2]}">
+        <small>${r[3]}</small><br>
+        <small>by ${r[4]}</small>
+      </div>
+    `).join("");
   });
 }
-
 
 show("loginCard");
 });
