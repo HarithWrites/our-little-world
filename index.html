@@ -106,6 +106,17 @@ select{
   opacity:0.85;
 }
 
+#dashboard button{
+  margin:8px 0;
+  font-size:15px;
+}
+
+.feature button{
+  margin-top:12px;
+  background:#ddd;
+  color:#333;
+}
+
   
 </style>
 </head>
@@ -144,17 +155,53 @@ select{
   <button onclick="confirmWho()">Continue</button>
 </div>
 
-<!-- APP -->
-<div id="app" style="display:none">
+  <!-- DASHBOARD -->
+<div class="card" id="dashboard" style="display:none">
+  <h3>💖 Our Little World</h3>
 
-  <div class="card">
-    <h3>💬 Chat</h3>
-    <div id="chatBox"></div>
-    <input id="msgInput" placeholder="Say something sweet 💕">
-    <button onclick="sendMessage()">Send</button>
-  </div>
-
+  <button onclick="openSection('chat')">💬 Our Chat</button>
+  <button onclick="openSection('notes')">💌 Our Notes</button>
+  <button onclick="openSection('gallery')">📸 Our Gallery</button>
+  <button onclick="openSection('todo')">✅ Our To-Do / Goals</button>
+  <button onclick="openSection('timer')">⏳ Our Next Meet</button>
 </div>
+
+  
+  
+<!-- APP -->
+<div class="card feature" id="chatSection" style="display:none">
+  <h3>💬 Our Chat</h3>
+  <div id="chatBox"></div>
+  <input id="msgInput" placeholder="Say something sweet 💕">
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="backToDashboard()">⬅ Back</button>
+</div>
+
+  <div class="card feature" id="notesSection" style="display:none">
+  <h3>💌 Our Notes</h3>
+  <p>Coming soon…</p>
+  <button onclick="backToDashboard()">⬅ Back</button>
+</div>
+
+  <div class="card feature" id="gallerySection" style="display:none">
+  <h3>📸 Our Gallery</h3>
+  <p>Coming soon…</p>
+  <button onclick="backToDashboard()">⬅ Back</button>
+</div>
+
+  <div class="card feature" id="todoSection" style="display:none">
+  <h3>✅ Our Goals</h3>
+  <p>Coming soon…</p>
+  <button onclick="backToDashboard()">⬅ Back</button>
+</div>
+
+
+<div class="card feature" id="timerSection" style="display:none">
+  <h3>⏳ Our Next Meet</h3>
+  <p>Coming soon…</p>
+  <button onclick="backToDashboard()">⬅ Back</button>
+</div>
+
 
 <script>
 /* =====================================================
@@ -254,7 +301,7 @@ const ui = {
 
     if (saved && state.allNames.includes(saved)) {
       setIdentity(saved);
-      ui.showApp();
+      showDashboard();
       startChatPolling();
     } else {
       showWhoSelector();
@@ -318,6 +365,28 @@ function createCouple(){
     state.allNames.find(n => n !== me) || "Partner";
 }
 
+  function showDashboard() {
+  hideAllSections();
+  dashboard.style.display = "block";
+}
+
+function openSection(name) {
+  hideAllSections();
+  document.getElementById(name + "Section").style.display = "block";
+}
+
+function backToDashboard() {
+  showDashboard();
+}
+
+function hideAllSections() {
+  dashboard.style.display = "none";
+  document.querySelectorAll(".feature").forEach(el => {
+    el.style.display = "none";
+  });
+}
+
+  
 /* =====================================================
    CHAT
 ===================================================== */
