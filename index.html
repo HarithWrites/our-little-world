@@ -270,7 +270,10 @@ function loadGallery(){
   .then(rows=>{
     $("galleryList").innerHTML=(rows||[]).map(r=>`
       <div>
-        <img src="${r[2]}">
+        <img 
+            src="${r[2]}" 
+            referrerpolicy="no-referrer"
+            onerror="this.src='https://via.placeholder.com/300?text=Image+Unavailable'">
         <small>${r[3]}</small><br>
         <small>by ${r[4]}</small>
       </div>
