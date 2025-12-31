@@ -177,8 +177,17 @@ th{font-size:12px;opacity:.7}
 
   <table>
     <thead>
-      <tr><th>#</th><th>Goal</th><th>Status</th><th>By</th><th>❌</th></tr>
-    </thead>
+  <tr>
+    <th>#</th>
+    <th>Goal</th>
+    <th>Target</th>   <!-- ✅ -->
+    <th>Status</th>
+    <th>Remarks</th>       <!-- ✅ -->
+    <th>By</th>
+    <th>❌</th>
+  </tr>
+</thead>
+
     <tbody id="goalsBody"></tbody>
   </table>
 
@@ -299,16 +308,24 @@ function loadGoals(){
   api({action:"fetchGoals",code:state.coupleCode})
   .then(rows=>{
     let done=0;
-    $("goalsBody").innerHTML=(rows||[]).map(r=>{
-      if(r[4]==="Completed") done++;
-      return `<tr>
-        <td>${r[1]}</td>
-        <td>${r[2]}</td>
-        <td class="status-${r[4].replace(/\s/g,'\\ ')}">${r[4]}</td>
-        <td>${r[6]}</td>
-        <td><button onclick="deleteGoal(${r[1]})">❌</button></td>
-      </tr>`;
+    $("goalsBody").innerHTML = (rows || []).map(r => {
+      if (r[4] === "Completed") done++;
+    
+      return `
+        <tr>
+          <td>${r[1]}</td>
+          <td>${r[2]}</td>
+          <td>${r[3] ? new Date(r[3]).toLocaleDateString() : ""}</td>   <!-- Target Date -->
+          <td class="status-${r[4].replace(/\s/g,'\\ ')}">${r[4]}</td>
+          <td>${r[5] || ""}</td>   <!-- Remarks -->
+          <td>${r[6]}</td>
+          <td>
+            <button onclick="deleteGoal(${r[1]})">❌</button>
+          </td>
+        </tr>
+      `;
     }).join("");
+
     $("goalSummary").innerText=`${done}/${rows.length} completed`;
   });
 }
